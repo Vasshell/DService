@@ -1,0 +1,53 @@
+name: dservice
+# Comments are provided throughout this file to help you get started.
+# If you need more help, visit the Docker Compose reference guide at
+# https://docs.docker.com/go/compose-spec-reference/
+
+# Here the instructions define your application as a service called "server".
+# This service is built from the Dockerfile in the current directory.
+# You can add other services your application may depend on here, such as a
+# database or a cache. For examples, see the Awesome Compose repository:
+# https://github.com/docker/awesome-compose
+services:
+  server:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/dservice
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=1769
+      - SPRING_RABBITMQ_HOST=rabbitmq
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+     image: postgres:latest
+     restart: always
+     user: postgres
+     volumes:
+       - db-data:/var/lib/postgresql
+       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+     environment:
+       - POSTGRES_DB=dservice
+       - POSTGRES_PASSWORD=1769
+     ports:
+       - "5432:5432"
+     healthcheck:
+       test: [ "CMD", "pg_isready" ]
+       interval: 10s
+       timeout: 5s
+       retries: 5
+
+  rabbitmq:
+    image: rabbitmq:latest
+    container_name: shop-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+volumes:
+   db-data:
+
+
