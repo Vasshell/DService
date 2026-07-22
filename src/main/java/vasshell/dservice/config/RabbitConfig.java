@@ -1,4 +1,4 @@
-package vasshell.dservice.rabbitmq;
+package vasshell.dservice.config;
 
 import org.springframework.amqp.core.Queue;
 import org.springframework.context.annotation.Bean;

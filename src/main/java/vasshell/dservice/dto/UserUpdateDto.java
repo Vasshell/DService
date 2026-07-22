@@ -1,13 +1,13 @@
-package vasshell.dservice.user.dto;
+package vasshell.dservice.dto;
 
 import java.util.UUID;
 
-public record UpdateUserDto(UUID id,
+public record UserUpdateDto(UUID id,
                             String firstName,
                             String lastName,
                             Integer age)
 {
-    public UpdateUserDto(UUID id, CreateUserDto dto) {
+    public UserUpdateDto(UUID id, UserCreateDto dto) {
         this(id, dto.firstName(), dto.lastName(), dto.age());
     }
 }
