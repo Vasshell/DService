@@ -1,33 +1,33 @@
-package vasshell.dservice.publisher;
+package vasshell.dservice.sender;
 
 import lombok.AllArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
 import vasshell.dservice.config.RabbitConfig;
 import vasshell.dservice.dto.UserDto;
 
 import java.util.UUID;
 
-@Service
+@Component
 @AllArgsConstructor
-public class UserSenderImpl implements UserSender {
+public class RabbitUserSender implements UserSender {
 
     private final ObjectMapper objectMapper;
     private final RabbitTemplate rabbitTemplate;
-    @Override
-
-    public void deleteUserMessage(UUID id) {
-        rabbitTemplate.convertAndSend(RabbitConfig.QUEUE_DELETE, objectMapper.writeValueAsBytes(id));
-    }
 
     @Override
-    public void createUserMessage(UserDto user) {
+    public void sendCreateMessage(UserDto user) {
         rabbitTemplate.convertAndSend(RabbitConfig.QUEUE_CREATE, objectMapper.writeValueAsBytes(user));
     }
 
     @Override
-    public void updateUserMessage(UserDto user) {
+    public void sendUpdateMessage(UserDto user) {
         rabbitTemplate.convertAndSend(RabbitConfig.QUEUE_UPDATE, objectMapper.writeValueAsBytes(user));
+    }
+
+    @Override
+    public void sendDeleteMessage(UUID id) {
+        rabbitTemplate.convertAndSend(RabbitConfig.QUEUE_DELETE, objectMapper.writeValueAsBytes(id));
     }
 }

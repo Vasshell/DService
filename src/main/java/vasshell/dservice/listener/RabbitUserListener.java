@@ -11,8 +11,7 @@ import vasshell.dservice.service.UserService;
 import java.util.UUID;
 
 @AllArgsConstructor
-public class UserListener {
-
+public class RabbitUserListener {
 
     private final UserService userService;
     private final ObjectMapper objectMapper;
@@ -22,14 +21,14 @@ public class UserListener {
         userService.create(objectMapper.readValue(message.getBody(), UserDto.class));
     }
 
+    @RabbitListener(queues = RabbitConfig.QUEUE_UPDATE)
+    public void receiveUpdateMessage(Message message){
+        UserDto request = objectMapper.readValue(message.getBody(), UserDto.class);
+        userService.update(request);
+    }
+
     @RabbitListener(queues = RabbitConfig.QUEUE_DELETE)
     public void receiveDeleteMessage(Message message){
         userService.delete(objectMapper.readValue(message.getBody(), UUID.class));
-    }
-
-    @RabbitListener(queues = RabbitConfig.QUEUE_UPDATE)
-    public void receivePatchMessage(Message message){
-        UserDto request = objectMapper.readValue(message.getBody(), UserDto.class);
-        userService.update(request);
     }
 }

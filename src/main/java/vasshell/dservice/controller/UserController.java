@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vasshell.dservice.dto.UserDto;
 import vasshell.dservice.dto.UserFilterParamsDto;
-import vasshell.dservice.publisher.UserSender;
+import vasshell.dservice.sender.UserSender;
 import vasshell.dservice.service.UserService;
 
 import java.util.List;
@@ -22,7 +22,7 @@ public class UserController {
 
     @PostMapping(consumes = "application/json")
     public ResponseEntity<String> create(@RequestBody @Valid UserDto user){
-        publisher.createUserMessage(user);
+        publisher.sendCreateMessage(user);
         return ResponseEntity.accepted().build();
     }
 
@@ -50,13 +50,13 @@ public class UserController {
         if (!user.id().equals(id)) {
             return ResponseEntity.badRequest().body("ID are not matching");
         }
-        publisher.updateUserMessage(user);
+        publisher.sendUpdateMessage(user);
         return ResponseEntity.accepted().build();
     }
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<String> delete(@PathVariable UUID id){
-        publisher.deleteUserMessage(id);
+        publisher.sendDeleteMessage(id);
         return ResponseEntity.accepted().build();
     }
 
