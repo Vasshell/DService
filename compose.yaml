@@ -14,26 +14,21 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/dservice
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=1769
-      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_PROFILES_ACTIVE=test,docker
     depends_on:
       db:
         condition: service_healthy
 
   db:
      image: postgres:latest
+     container_name: db
      restart: always
      user: postgres
      volumes:
        - db-data:/var/lib/postgresql
-       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
      environment:
        - POSTGRES_DB=dservice
        - POSTGRES_PASSWORD=1769
-     ports:
-       - "5432:5432"
      healthcheck:
        test: [ "CMD", "pg_isready" ]
        interval: 10s
@@ -42,10 +37,7 @@ services:
 
   rabbitmq:
     image: rabbitmq:latest
-    container_name: shop-rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"
+    container_name: rabbitmq
 
 volumes:
    db-data:

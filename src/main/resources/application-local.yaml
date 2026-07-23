@@ -1,0 +1,8 @@
+spring:
+  datasource:
+    password: 1769
+    url: jdbc:postgresql://localhost:5432/
+    username: postgres
+  rabbitmq:
+    host: localhost
+    port: 5762
