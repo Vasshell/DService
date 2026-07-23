@@ -3,6 +3,7 @@ package vasshell.dservice.listener;
 import lombok.AllArgsConstructor;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
 import vasshell.dservice.config.RabbitConfig;
 import vasshell.dservice.dto.UserDto;
@@ -11,6 +12,7 @@ import vasshell.dservice.service.UserService;
 import java.util.UUID;
 
 @AllArgsConstructor
+@Component
 public class RabbitUserListener {
 
     private final UserService userService;

@@ -28,16 +28,16 @@ public class LoggingAspect {
     public Object logAroundRequestProcessors(ProceedingJoinPoint joinPoint) throws Throwable {
         Object[] args = joinPoint.getArgs();
         String methodName = joinPoint.getSignature().getName();
-        log.info("Request for {} - {}", methodName, Arrays.toString(args));
+        log.debug("Request for {} - {}", methodName, Arrays.toString(args));
         Object result = joinPoint.proceed();
-        log.info("Response for {} - {}", methodName, result);
+        log.debug("Response for {} - {}", methodName, result);
         return result;
     }
 
     @AfterReturning(value = "repositoryReturns()", returning = "result")
     public void logAfterRepositoryReturns(JoinPoint joinPoint, Object result){
         String methodName = joinPoint.getSignature().getName();
-        log.info("Repository's {} returned {}", methodName, result);
+        log.debug("Repository's {} returned {}", methodName, result);
     }
 
     @After("senderMessages()")
@@ -53,6 +53,6 @@ public class LoggingAspect {
     private void doGenericLog(JoinPoint joinPoint){
         String name = joinPoint.getSignature().getDeclaringType().getName();
         String methodName = joinPoint.getSignature().getName();
-        log.info("{} has {}", name, methodName);
+        log.debug("{} has {}", name, methodName);
     }
 }

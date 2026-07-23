@@ -1,8 +1,8 @@
 package vasshell.dservice.controller;
 
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import vasshell.dservice.dto.UserDto;
 import vasshell.dservice.dto.UserFilterParamsDto;
@@ -21,7 +21,7 @@ public class UserController {
     private final UserSender publisher;
 
     @PostMapping(consumes = "application/json")
-    public ResponseEntity<String> create(@RequestBody @Valid UserDto user){
+    public ResponseEntity<String> create(@RequestBody @Validated(UserDto.OnCreate.class) UserDto user){
         publisher.sendCreateMessage(user);
         return ResponseEntity.accepted().build();
     }
@@ -45,7 +45,7 @@ public class UserController {
 
 
     @PutMapping(value = "/{id}", consumes = "application/json")
-    public ResponseEntity<String> update(@RequestBody @Valid UserDto user,
+    public ResponseEntity<String> update(@RequestBody @Validated(UserDto.OnUpdate.class) UserDto user,
                                                      @PathVariable UUID id){
         if (!user.id().equals(id)) {
             return ResponseEntity.badRequest().body("ID are not matching");

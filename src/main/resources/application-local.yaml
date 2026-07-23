@@ -5,4 +5,4 @@ spring:
     username: postgres
   rabbitmq:
     host: localhost
-    port: 5762
+    port: 5672
