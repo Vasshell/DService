@@ -2,12 +2,13 @@ package vasshell.dservice.service;
 
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.PredicateSpecification;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import vasshell.dservice.dto.UserDto;
 import vasshell.dservice.dto.UserFilterParamsDto;
 import vasshell.dservice.entity.User;
@@ -29,13 +30,12 @@ public class UserService {
         userRepo.save(mapper.dtoToEntity(user));
     }
 
-    @Transactional(readOnly = true)
     public Optional<UserDto> getById(UUID id) {
         return userRepo.findById(id)
                 .map(mapper::entityToDto);
     }
 
-    @Transactional(readOnly = true)
+    @Cacheable(cacheNames = "users")
     public List<UserDto> getAll(UserFilterParamsDto params){
         PageRequest pageable = PageRequest.of(params.pageNum(), params.pageSize());
         return userRepo.findAll(paramsToSpec(params), pageable)
@@ -56,6 +56,7 @@ public class UserService {
         userRepo.save(userToUpdate);
     }
 
+    @CacheEvict(value = "users", allEntries = true)
     public void delete(UUID id) {
         userRepo.deleteById(id);
     }
