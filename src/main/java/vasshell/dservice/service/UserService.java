@@ -26,6 +26,7 @@ public class UserService {
     private final UserRepository userRepo;
     private final UserMapper mapper;
 
+    @CacheEvict(value = "users", allEntries = true)
     public void create(UserDto user){
         userRepo.save(mapper.dtoToEntity(user));
     }

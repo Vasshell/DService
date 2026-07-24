@@ -14,9 +14,11 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - SPRING_PROFILES_ACTIVE=test,docker
+      - SPRING_PROFILES_ACTIVE=docker,test
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
   db:
@@ -39,7 +41,18 @@ services:
     image: rabbitmq:latest
     container_name: rabbitmq
 
-volumes:
-   db-data:
+  redis:
+    image: redis:latest
+    container_name: shop-redis
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
+volumes:
+  db-data:
+  redis-data:
 
