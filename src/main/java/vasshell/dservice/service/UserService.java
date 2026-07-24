@@ -44,6 +44,7 @@ public class UserService {
                         .stream().map(mapper::entityToDto).toList();
     }
 
+    @CacheEvict(value = "users", allEntries = true)
     public void update(UserDto userDto){
         Optional<User> userSearch = userRepo.findById(userDto.id());
         if (userSearch.isEmpty()){
