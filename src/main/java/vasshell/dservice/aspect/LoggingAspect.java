@@ -1,3 +1,4 @@
+/*
 package vasshell.dservice.aspect;
 
 import lombok.extern.slf4j.Slf4j;
@@ -56,3 +57,4 @@ public class LoggingAspect {
         log.debug("{} has {}", name, methodName);
     }
 }
+*/
