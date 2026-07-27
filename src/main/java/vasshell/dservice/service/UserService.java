@@ -10,7 +10,7 @@ import org.springframework.data.jpa.domain.PredicateSpecification;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vasshell.dservice.dto.UserDto;
-import vasshell.dservice.dto.UserFilterParamsDto;
+import vasshell.dservice.dto.UserFilterDto;
 import vasshell.dservice.entity.User;
 import vasshell.dservice.mapper.UserMapper;
 import vasshell.dservice.repository.UserRepository;
@@ -37,7 +37,7 @@ public class UserService {
     }
 
     @Cacheable(cacheNames = "users")
-    public List<UserDto> getAll(UserFilterParamsDto params){
+    public List<UserDto> getAll(UserFilterDto params){
         PageRequest pageable = PageRequest.of(params.pageNum(), params.pageSize());
         return userRepo.findAll(paramsToSpec(params), pageable)
                         .getContent()
@@ -63,7 +63,7 @@ public class UserService {
         userRepo.deleteById(id);
     }
 
-    private Specification<User> paramsToSpec(UserFilterParamsDto params){
+    private Specification<User> paramsToSpec(UserFilterDto params){
         Specification<User> spec = Specification.unrestricted();
 
         if (params.firstName() != null){

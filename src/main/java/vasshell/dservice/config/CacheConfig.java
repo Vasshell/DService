@@ -1,6 +1,5 @@
 package vasshell.dservice.config;
 
-import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -11,13 +10,7 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 import tools.jackson.databind.ObjectMapper;
 
 @Configuration
-@EnableCaching
-public class ApplicationConfig {
-
-    @Bean
-    public ObjectMapper objectMapper(){
-        return new ObjectMapper();
-    }
+public class CacheConfig {
 
     @Bean
     public RedisCacheManager redisCacheConfiguration(ObjectMapper objectMapper, RedisConnectionFactory connectionFactory){
@@ -29,4 +22,5 @@ public class ApplicationConfig {
                 .cacheDefaults(conf)
                 .build();
     }
+
 }

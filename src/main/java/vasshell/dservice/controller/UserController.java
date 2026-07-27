@@ -1,11 +1,12 @@
 package vasshell.dservice.controller;
 
 import lombok.AllArgsConstructor;
+import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import vasshell.dservice.dto.UserDto;
-import vasshell.dservice.dto.UserFilterParamsDto;
+import vasshell.dservice.dto.UserFilterDto;
 import vasshell.dservice.sender.UserSender;
 import vasshell.dservice.service.UserService;
 
@@ -36,7 +37,7 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getAll(UserFilterParamsDto params){
+    public ResponseEntity<?> getAll(@SpringQueryMap UserFilterDto params){
         List<UserDto> response = userService.getAll(params);
         return response.isEmpty()
                 ? ResponseEntity.noContent().build()
