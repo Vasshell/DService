@@ -6,7 +6,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.domain.PredicateSpecification;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vasshell.dservice.dto.UserDto;
@@ -14,6 +13,7 @@ import vasshell.dservice.dto.UserFilterDto;
 import vasshell.dservice.entity.User;
 import vasshell.dservice.mapper.UserMapper;
 import vasshell.dservice.repository.UserRepository;
+import vasshell.dservice.util.UserSpecification;
 
 import java.util.List;
 import java.util.Optional;
@@ -117,36 +117,5 @@ public class UserService {
         );
 
         userRepo.saveAll(list);
-    }
-}
-
-class UserSpecification {
-
-    public static PredicateSpecification<User> likeFirstName(String firstName){
-        return likeName(firstName, "firstName");
-    }
-
-    public static PredicateSpecification<User> likeLastName(String lastName){
-        return likeName(lastName, "lastName");
-    }
-
-    private static PredicateSpecification<User> likeName(String compareTo, String propertyName){
-        return (root, criteriaBuilder) ->
-                criteriaBuilder.like(criteriaBuilder.lower(root.get(propertyName)), "%" + compareTo.toLowerCase() + "%");
-    }
-
-    public static PredicateSpecification<User> hasAge(Integer age) {
-        return (from, criteriaBuilder) ->
-                criteriaBuilder.equal(from.get("age"), age);
-    }
-
-    public static PredicateSpecification<User> hasAgeGreaterThan(Integer ageGt) {
-        return (from, criteriaBuilder) ->
-                criteriaBuilder.greaterThan(from.get("age"), ageGt);
-    }
-
-    public static PredicateSpecification<User> hasAgeLessThan(Integer ageLt) {
-        return (from, criteriaBuilder) ->
-                criteriaBuilder.lessThan(from.get("age"), ageLt);
     }
 }
