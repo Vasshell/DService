@@ -8,8 +8,8 @@
         <version>4.1.0</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>vasshell</groupId>
-    <artifactId>DService</artifactId>
+    <groupId>ru.vasshell</groupId>
+    <artifactId>d-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>DService</name>
     <description>DService</description>

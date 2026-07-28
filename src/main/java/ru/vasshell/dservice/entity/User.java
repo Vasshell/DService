@@ -1,27 +1,26 @@
-package vasshell.dservice.entity;
+package ru.vasshell.dservice.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 import java.util.UUID;
 
 @Data
 @Entity
-@Table(name="users")
-@ToString
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@Table(name="USERS")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "ID")
     private UUID id;
-    @Column(name = "first_name")
+    @Column(name = "FIRST_NAME")
     private String firstName;
-    @Column(name = "last_name")
+    @Column(name = "LAST_NAME")
     private String lastName;
-    @Column(name = "age")
+    @Column(name = "AGE")
     private int age;
 }

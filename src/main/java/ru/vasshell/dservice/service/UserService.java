@@ -1,19 +1,20 @@
-package vasshell.dservice.service;
+package ru.vasshell.dservice.service;
 
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Profile;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import vasshell.dservice.dto.UserDto;
-import vasshell.dservice.dto.UserFilterDto;
-import vasshell.dservice.entity.User;
-import vasshell.dservice.mapper.UserMapper;
-import vasshell.dservice.repository.UserRepository;
-import vasshell.dservice.util.UserSpecification;
+import ru.vasshell.dservice.dto.UserDto;
+import ru.vasshell.dservice.dto.UserFilterDto;
+import ru.vasshell.dservice.entity.User;
+import ru.vasshell.dservice.mapper.UserMapper;
+import ru.vasshell.dservice.repository.UserRepository;
+import ru.vasshell.dservice.util.UserSpecification;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,36 +27,27 @@ public class UserService {
     private final UserRepository userRepo;
     private final UserMapper mapper;
 
+    public Optional<UserDto> getById(UUID id) {
+        return userRepo.findById(id).map(mapper::entityToDto);
+    }
+
+    @Cacheable(cacheNames = "users", key = "#params + ' size='+ #pageable.pageSize +' page='+ #pageable.pageNumber")
+    public Page<UserDto> getAll(UserFilterDto params, Pageable pageable){
+        return userRepo.findAll(paramsToSpec(params), pageable).map(mapper::entityToDto);
+    }
+
     @CacheEvict(value = "users", allEntries = true)
     public void create(UserDto user){
         userRepo.save(mapper.dtoToEntity(user));
     }
 
-    public Optional<UserDto> getById(UUID id) {
-        return userRepo.findById(id)
-                .map(mapper::entityToDto);
-    }
-
-    @Cacheable(cacheNames = "users")
-    public List<UserDto> getAll(UserFilterDto params){
-        PageRequest pageable = PageRequest.of(params.pageNum(), params.pageSize());
-        return userRepo.findAll(paramsToSpec(params), pageable)
-                        .getContent()
-                        .stream().map(mapper::entityToDto).toList();
-    }
-
     @CacheEvict(value = "users", allEntries = true)
     public void update(UserDto userDto){
-        Optional<User> userSearch = userRepo.findById(userDto.id());
+        Optional<User> userSearch = userRepo.findById(userDto.getId());
         if (userSearch.isEmpty()){
             return;
         }
-        User userToUpdate = userSearch.get();
-        if (userDto.firstName() != null) userToUpdate.setFirstName(userDto.firstName());
-        if (userDto.lastName() != null) userToUpdate.setLastName(userDto.lastName());
-        if (userDto.age() != null) userToUpdate.setAge(userDto.age());
-
-        userRepo.save(userToUpdate);
+        userRepo.save(mapper.dtoToEntity(userDto));
     }
 
     @CacheEvict(value = "users", allEntries = true)
@@ -66,20 +58,20 @@ public class UserService {
     private Specification<User> paramsToSpec(UserFilterDto params){
         Specification<User> spec = Specification.unrestricted();
 
-        if (params.firstName() != null){
-            spec = spec.and(UserSpecification.likeFirstName(params.firstName()));
+        if (params.getFirstName() != null){
+            spec = spec.and(UserSpecification.likeFirstName(params.getFirstName()));
         }
-        if (params.lastName() != null){
-            spec = spec.and(UserSpecification.likeLastName(params.lastName()));
+        if (params.getLastName() != null){
+            spec = spec.and(UserSpecification.likeLastName(params.getLastName()));
         }
-        if (params.age() != null){
-            spec = spec.and(UserSpecification.hasAge(params.age()));
+        if (params.getAge() != null){
+            spec = spec.and(UserSpecification.hasAge(params.getAge()));
         }
-        if (params.ageGreaterThan()!=null){
-            spec = spec.and(UserSpecification.hasAgeGreaterThan(params.ageGreaterThan()));
+        if (params.getAgeGreaterThan()!=null){
+            spec = spec.and(UserSpecification.hasAgeGreaterThan(params.getAgeGreaterThan()));
         }
-        if (params.ageLessThan()!=null){
-            spec = spec.and(UserSpecification.hasAgeLessThan(params.ageLessThan()));
+        if (params.getAgeLessThan()!=null){
+            spec = spec.and(UserSpecification.hasAgeLessThan(params.getAgeLessThan()));
         }
         return spec;
     }

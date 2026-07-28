@@ -1,4 +1,4 @@
-package vasshell.dservice.config;
+package ru.vasshell.dservice.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,14 +13,16 @@ import tools.jackson.databind.ObjectMapper;
 public class CacheConfig {
 
     @Bean
-    public RedisCacheManager redisCacheConfiguration(ObjectMapper objectMapper, RedisConnectionFactory connectionFactory){
-        RedisCacheConfiguration conf = RedisCacheConfiguration.defaultCacheConfig()
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(
-                        new GenericJacksonJsonRedisSerializer(objectMapper)));
+    public RedisCacheManager redisCacheConfiguration(
+            ObjectMapper objectMapper,
+            RedisConnectionFactory connectionFactory) {
+        RedisCacheConfiguration conf = RedisCacheConfiguration.defaultCacheConfig().serializeValuesWith(
+                RedisSerializationContext.SerializationPair.fromSerializer(
+                        new GenericJacksonJsonRedisSerializer(objectMapper)
+                )
+        );
 
-        return RedisCacheManager.builder(connectionFactory)
-                .cacheDefaults(conf)
-                .build();
+        return RedisCacheManager.builder(connectionFactory).cacheDefaults(conf).build();
     }
 
 }

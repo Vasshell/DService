@@ -1,8 +1,8 @@
-package vasshell.dservice.mapper;
+package ru.vasshell.dservice.mapper;
 
 import org.mapstruct.Mapper;
-import vasshell.dservice.dto.UserDto;
-import vasshell.dservice.entity.User;
+import ru.vasshell.dservice.dto.UserDto;
+import ru.vasshell.dservice.entity.User;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {

@@ -1,8 +1,8 @@
-package vasshell.dservice.util;
+package ru.vasshell.dservice.util;
 
 import org.springframework.data.jpa.domain.PredicateSpecification;
-import vasshell.dservice.entity.User;
-import vasshell.dservice.entity.User_;
+import ru.vasshell.dservice.entity.User;
+import ru.vasshell.dservice.entity.User_;
 
 public class UserSpecification {
 

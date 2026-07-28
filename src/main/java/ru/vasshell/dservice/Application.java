@@ -1,4 +1,4 @@
-package vasshell.dservice;
+package ru.vasshell.dservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

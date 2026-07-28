@@ -1,6 +1,6 @@
-package vasshell.dservice.sender;
+package ru.vasshell.dservice.sender;
 
-import vasshell.dservice.dto.UserDto;
+import ru.vasshell.dservice.dto.UserDto;
 
 import java.util.UUID;
 

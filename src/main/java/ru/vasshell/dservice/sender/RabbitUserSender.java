@@ -1,11 +1,11 @@
-package vasshell.dservice.sender;
+package ru.vasshell.dservice.sender;
 
 import lombok.AllArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
-import vasshell.dservice.config.RabbitConfig;
-import vasshell.dservice.dto.UserDto;
+import ru.vasshell.dservice.config.RabbitConfig;
+import ru.vasshell.dservice.dto.UserDto;
 
 import java.util.UUID;
 

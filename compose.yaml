@@ -11,6 +11,7 @@ name: dservice
 services:
   server:
     build: .
+    container_name: service
     ports:
       - "8080:8080"
     environment:
@@ -43,7 +44,7 @@ services:
 
   redis:
     image: redis:latest
-    container_name: shop-redis
+    container_name: redis
     volumes:
       - redis-data:/data
     healthcheck:
