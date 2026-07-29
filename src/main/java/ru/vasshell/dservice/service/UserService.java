@@ -6,7 +6,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import ru.vasshell.dservice.dto.PageResult;
 import ru.vasshell.dservice.dto.UserDto;
@@ -14,7 +13,6 @@ import ru.vasshell.dservice.dto.UserFilterDto;
 import ru.vasshell.dservice.entity.User;
 import ru.vasshell.dservice.mapper.UserMapper;
 import ru.vasshell.dservice.repository.UserRepository;
-import ru.vasshell.dservice.util.UserSpecification;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,17 +26,17 @@ public class UserService {
     private final UserMapper mapper;
 
     public Optional<UserDto> getById(UUID id) {
-        return userRepo.findById(id).map(mapper::entityToDto);
+        return userRepo.findById(id).map(mapper::toDto);
     }
 
     @Cacheable(cacheNames = "users", key = "#params + ' size='+ #pageable.pageSize +' page='+ #pageable.pageNumber")
     public PageResult<UserDto> getAll(UserFilterDto params, Pageable pageable){
-        return PageResult.from(userRepo.findAll(paramsToSpec(params), pageable).map(mapper::entityToDto));
+        return PageResult.from(userRepo.findAll(/*paramsToSpec(params),*/ pageable).map(mapper::toDto));
     }
 
     @CacheEvict(value = "users", allEntries = true)
     public void create(UserDto user){
-        userRepo.save(mapper.dtoToEntity(user));
+        userRepo.save(mapper.toEntity(user));
     }
 
     @CacheEvict(value = "users", allEntries = true)
@@ -47,7 +45,7 @@ public class UserService {
         if (userSearch.isEmpty()){
             return;
         }
-        userRepo.save(mapper.dtoToEntity(userDto));
+        userRepo.save(mapper.toEntity(userDto));
     }
 
     @CacheEvict(value = "users", allEntries = true)
@@ -55,7 +53,7 @@ public class UserService {
         userRepo.deleteById(id);
     }
 
-    private Specification<User> paramsToSpec(UserFilterDto params){
+   /* private Specification<User> paramsToSpec(UserFilterDto params){
         Specification<User> spec = Specification.unrestricted();
 
         if (params.getFirstName() != null){
@@ -74,12 +72,12 @@ public class UserService {
             spec = spec.and(UserSpecification.hasAgeLessThan(params.getAgeLessThan()));
         }
         return spec;
-    }
+    }*/
 
     @Profile("test")
     @PostConstruct
     private void init(){
-        if (!userRepo.findAll(Specification.unrestricted()).isEmpty()) {
+        if (!userRepo.findAll().isEmpty()) {
             return;
         }
         List<User> list = List.of(

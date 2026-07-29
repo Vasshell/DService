@@ -1,12 +1,23 @@
 package ru.vasshell.dservice.repository;
 
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import ru.vasshell.dservice.entity.User;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
-@Repository
-public interface UserRepository extends CrudRepository<User, UUID>, JpaSpecificationExecutor<User> {
+public interface UserRepository {
+
+    void save(User user);
+
+    Optional<User> findById(UUID id);
+
+    void deleteById(UUID id);
+
+    Page<User> findAll(Pageable pageable);
+    List<User> findAll();
+
+    void saveAll(List<User> list);
 }

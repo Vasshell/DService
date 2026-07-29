@@ -1,3 +1,4 @@
+/*
 package ru.vasshell.dservice.util;
 
 import org.springframework.data.jpa.domain.PredicateSpecification;
@@ -33,4 +34,4 @@ public class UserSpecification {
         return (from, criteriaBuilder) ->
                 criteriaBuilder.lessThan(from.get(User_.AGE), ageLt);
     }
-}
+}*/
