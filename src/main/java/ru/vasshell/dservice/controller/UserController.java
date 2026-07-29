@@ -40,7 +40,7 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<Page<UserDto>> getAll(@SpringQueryMap UserFilterDto params, Pageable pageable) {
-        Page<UserDto> response = userService.getAll(params, pageable);
+        Page<UserDto> response = userService.getAll(params, pageable).toPage(pageable); //clunky fix?
         log.info("Received GET request at /api/users, filter: {}, pageable: {}", params, pageable);
         if (response.isEmpty()){
             log.debug("No users found");

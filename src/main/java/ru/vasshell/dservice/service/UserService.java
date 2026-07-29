@@ -5,10 +5,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Profile;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import ru.vasshell.dservice.dto.PageResult;
 import ru.vasshell.dservice.dto.UserDto;
 import ru.vasshell.dservice.dto.UserFilterDto;
 import ru.vasshell.dservice.entity.User;
@@ -32,8 +32,8 @@ public class UserService {
     }
 
     @Cacheable(cacheNames = "users", key = "#params + ' size='+ #pageable.pageSize +' page='+ #pageable.pageNumber")
-    public Page<UserDto> getAll(UserFilterDto params, Pageable pageable){
-        return userRepo.findAll(paramsToSpec(params), pageable).map(mapper::entityToDto);
+    public PageResult<UserDto> getAll(UserFilterDto params, Pageable pageable){
+        return PageResult.from(userRepo.findAll(paramsToSpec(params), pageable).map(mapper::entityToDto));
     }
 
     @CacheEvict(value = "users", allEntries = true)
