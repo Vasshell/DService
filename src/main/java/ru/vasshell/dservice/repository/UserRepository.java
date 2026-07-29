@@ -2,6 +2,7 @@ package ru.vasshell.dservice.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import ru.vasshell.dservice.dto.UserFilterDto;
 import ru.vasshell.dservice.entity.User;
 
 import java.util.List;
@@ -16,7 +17,7 @@ public interface UserRepository {
 
     void deleteById(UUID id);
 
-    Page<User> findAll(Pageable pageable);
+    Page<User> findAll(UserFilterDto filters, Pageable pageable);
     List<User> findAll();
 
     void saveAll(List<User> list);

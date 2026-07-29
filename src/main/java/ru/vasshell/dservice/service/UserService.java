@@ -29,9 +29,9 @@ public class UserService {
         return userRepo.findById(id).map(mapper::toDto);
     }
 
-    @Cacheable(cacheNames = "users", key = "#params + ' size='+ #pageable.pageSize +' page='+ #pageable.pageNumber")
+    @Cacheable(cacheNames = "users", key = "#params + ', ' + #pageable")
     public PageResult<UserDto> getAll(UserFilterDto params, Pageable pageable){
-        return PageResult.from(userRepo.findAll(/*paramsToSpec(params),*/ pageable).map(mapper::toDto));
+        return PageResult.from(userRepo.findAll(params, pageable).map(mapper::toDto));
     }
 
     @CacheEvict(value = "users", allEntries = true)

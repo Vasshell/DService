@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -39,9 +40,10 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<UserDto>> getAll(@SpringQueryMap UserFilterDto params, Pageable pageable) {
-        Page<UserDto> response = userService.getAll(params, pageable).toPage(pageable); //clunky fix?
+    public ResponseEntity<Page<UserDto>> getAll(
+            @SpringQueryMap UserFilterDto params, @PageableDefault(size = 10, sort = "last_name") Pageable pageable) {
         log.info("Received GET request at /api/users, filter: {}, pageable: {}", params, pageable);
+        Page<UserDto> response = userService.getAll(params, pageable).toPage(pageable); //clunky fix?
         if (response.isEmpty()){
             log.debug("No users found");
             return ResponseEntity.noContent().build();
@@ -60,7 +62,9 @@ public class UserController {
     }
 
     @PutMapping(value = "/{id}", consumes = "application/json")
-    public ResponseEntity<String> update(@RequestBody @Validated(UserDto.OnUpdate.class) UserDto user, @PathVariable UUID id) {
+    public ResponseEntity<String> update(
+            @RequestBody @Validated(UserDto.OnUpdate.class) UserDto user,
+            @PathVariable UUID id) {
         log.info("Received PUT request at /api/users/{}, firstName: {}, lastName: {}, age: {}",
                 id, user.getFirstName(), user.getLastName(), user.getAge());
         if (!user.getId().equals(id)) {
