@@ -41,7 +41,7 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<Page<UserDto>> getAll(
-            @SpringQueryMap UserFilterDto params, @PageableDefault(size = 10, sort = "last_name") Pageable pageable) {
+            @SpringQueryMap UserFilterDto params, @PageableDefault(size = 5, sort = "id") Pageable pageable) {
         log.info("Received GET request at /api/users, filter: {}, pageable: {}", params, pageable);
         Page<UserDto> response = userService.getAll(params, pageable).toPage(pageable); //clunky fix?
         if (response.isEmpty()){

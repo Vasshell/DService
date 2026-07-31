@@ -1,26 +1,29 @@
 package ru.vasshell.dservice.config;
 
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
+import ru.vasshell.dservice.util.DatabaseInitializer;
 
-@Configuration
+@Getter
+@Component
 public class DatabaseConfig {
-    public static String PASSWORD;
-    public static String USERNAME;
-    public static String URL;
+    private final String url;
+    private final String username;
+    private final String password;
 
-    @Value("${spring.datasource.password}")
-    public void setPassword(String password) {
-        PASSWORD = password;
+    public DatabaseConfig(
+            @Value("${spring.datasource.url}")
+            String url,
+            @Value("${spring.datasource.username}")
+            String username,
+            @Value("${spring.datasource.password}")
+            String password
+    ) {
+        this.url = url;
+        this.username = username;
+        this.password = password;
+        DatabaseInitializer.verifyDb(url, username, password);
     }
 
-    @Value("${spring.datasource.username}")
-    public void setUsername(String username) {
-        USERNAME = username;
-    }
-
-    @Value("${spring.datasource.url}")
-    public void setUrl(String url) {
-        URL = url;
-    }
 }

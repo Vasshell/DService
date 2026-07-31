@@ -1,69 +1,107 @@
 package ru.vasshell.dservice.repository;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import ru.vasshell.dservice.config.DatabaseConfig;
 import ru.vasshell.dservice.dto.UserFilterDto;
 import ru.vasshell.dservice.entity.User;
 import ru.vasshell.dservice.mapper.UserMapper;
+import ru.vasshell.dservice.util.UserClause;
 
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
 public class UserRepositoryImpl  implements UserRepository {
 
     private final UserMapper userMapper;
-    private final String selectByIdQuery = """
-                            SELECT *
-                            FROM users
-                            WHERE id = '%s'
-                            """;
-    private final String selectQuery = """
-                            SELECT *
-                            FROM users
-                            %s
-                            LIMIT %d OFFSET %d
-                            """;
+    private final DatabaseConfig config;
 
     @Override
-    public void save(User user) {
+    public void ensure() {
+        String ensureTableQuery = """
+                CREATE TABLE IF NOT EXISTS users(
+                    id uuid not null primary key default uuidv7(),
+                    first_name varchar(255),
+                    last_name varchar(255),
+                    age integer
+                )
+                """;
+        try (Connection connection = getConnection(); Statement statement = connection.createStatement()){
+            statement.executeUpdate(ensureTableQuery);
+        }catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(config.getUrl(), config.getUsername(), config.getPassword());
     }
 
     @Override
     public Optional<User> findById(UUID id) {
-        try (Connection connection = getConnection()){
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(
-                    String.format(selectByIdQuery, id.toString()));
-            return resultSet.next()
-                    ? Optional.of(userMapper.toEntity(resultSet))
-                    : Optional.empty();
+        String selectByIdQuery = """
+                    SELECT id, first_name, last_name, age
+                    FROM users
+                    WHERE id = ?
+                    """;
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(selectByIdQuery)){
+            statement.setObject(1, id);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                return resultSet.next()
+                        ? Optional.of(userMapper.toEntity(resultSet))
+                        : Optional.empty();
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public void deleteById(UUID id) {
-
-    }
-
-    @Override
     public Page<User> findAll(UserFilterDto filters, Pageable pageable) {
-        try (Connection connection = getConnection()){
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(
-                    String.format(selectQuery, getSortingClause(pageable.getSort()), pageable.getPageSize(), pageable.getOffset()));
-            List<User> result = new ArrayList<>();
-            while (resultSet.next()) {
-                result.add(userMapper.toEntity(resultSet));
+        UserClause userClause = UserClause.getFilteringClause(filters);
+        String selectQuery = """
+                    SELECT id, first_name, last_name, age
+                    FROM users
+                    %s
+                    %s
+                    LIMIT ? OFFSET ?
+                    """.formatted(userClause.getClause(), UserClause.getSortingClause(pageable.getSort()));
+        String countQuery = """
+                    SELECT COUNT(*)
+                    FROM users
+                    %s
+                    """.formatted(userClause.getClause());
+
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(selectQuery);
+             PreparedStatement countStatement = connection.prepareStatement(countQuery)){
+
+            int i = 1;
+            for (Object obj : userClause.getArgs()){
+                statement.setObject(i, obj);
+                countStatement.setObject(i, obj);
+                i++;
             }
-            ResultSet totalCount = statement.executeQuery("SELECT COUNT(*) FROM users");
-            long total = totalCount.next() ? totalCount.getLong(1) : result.size();
-            return new PageImpl<>(result,  pageable, total);
+            statement.setLong(i, pageable.getPageSize());
+            statement.setLong(i + 1, pageable.getOffset());
+            try (ResultSet resultSet = statement.executeQuery();
+            ResultSet totalCount = countStatement.executeQuery()) {
+                List<User> result = new ArrayList<>();
+                while (resultSet.next()) {
+                    result.add(userMapper.toEntity(resultSet));
+                }
+                long total = totalCount.next() ? totalCount.getLong(1) : result.size();
+                return new PageImpl<>(result,  pageable, total);
+            }
         }catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -71,29 +109,61 @@ public class UserRepositoryImpl  implements UserRepository {
 
     @Override
     public List<User> findAll() {
-        return List.of();
+        String selectAllQuery = """
+                                SELECT id, first_name, last_name, age
+                                FROM users
+                                """;
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(selectAllQuery)) {
+            try (ResultSet resultSet = statement.executeQuery()) {
+                List<User> results = new ArrayList<>();
+                while (resultSet.next()) results.add(userMapper.toEntity(resultSet));
+                return results;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void saveAll(List<User> list) {
-
+        String insertQuery ="""
+                INSERT INTO users (first_name, last_name, age)
+                VALUES (?,?,?)
+                """;
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(insertQuery)){
+            for (User user : list){
+                statement.setString(1, user.getFirstName());
+                statement.setString(2, user.getLastName());
+                statement.setInt(3, user.getAge());
+                statement.addBatch();
+            }
+            statement.executeBatch();
+        }catch (SQLException e){
+            throw new RuntimeException(e);
+        }
     }
 
-    private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(DatabaseConfig.URL, DatabaseConfig.USERNAME, DatabaseConfig.PASSWORD);
+    @Override
+    public void save(User user) {
+        saveAll(List.of(user));
     }
 
-    private String getSortingClause(Sort sort) {
-        StringBuilder clause = new StringBuilder();
-        clause.append("ORDER BY ");
-        if (sort.isUnsorted()){
-            clause.append("id ASC");
-            return clause.toString();
+    @Override
+    public void deleteById(UUID id) {
+        String deleteByIdQuery = """
+                DELETE
+                FROM users
+                WHERE id = ?
+                """;
+
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(deleteByIdQuery)){
+            statement.setObject(1, id);
+            statement.execute();
+        } catch (SQLException e){
+            throw new RuntimeException(e);
         }
-        StringJoiner joiner = new StringJoiner(", ");
-        for (Sort.Order order : sort) {
-            joiner.add(order.getProperty() + " " + order.getDirection());
-        }
-        return clause.append(joiner).toString();
     }
 }

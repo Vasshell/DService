@@ -53,30 +53,10 @@ public class UserService {
         userRepo.deleteById(id);
     }
 
-   /* private Specification<User> paramsToSpec(UserFilterDto params){
-        Specification<User> spec = Specification.unrestricted();
-
-        if (params.getFirstName() != null){
-            spec = spec.and(UserSpecification.likeFirstName(params.getFirstName()));
-        }
-        if (params.getLastName() != null){
-            spec = spec.and(UserSpecification.likeLastName(params.getLastName()));
-        }
-        if (params.getAge() != null){
-            spec = spec.and(UserSpecification.hasAge(params.getAge()));
-        }
-        if (params.getAgeGreaterThan()!=null){
-            spec = spec.and(UserSpecification.hasAgeGreaterThan(params.getAgeGreaterThan()));
-        }
-        if (params.getAgeLessThan()!=null){
-            spec = spec.and(UserSpecification.hasAgeLessThan(params.getAgeLessThan()));
-        }
-        return spec;
-    }*/
-
     @Profile("test")
     @PostConstruct
     private void init(){
+        userRepo.ensure();
         if (!userRepo.findAll().isEmpty()) {
             return;
         }

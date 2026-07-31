@@ -1,8 +1,8 @@
 spring:
   datasource:
-    password: 1769
-    url: jdbc:postgresql://db:5432/
+    url: jdbc:postgresql://db:5432/dservice
     username: postgres
+    password: 1769
   rabbitmq:
     host: rabbitmq
     port: 5672
