@@ -23,7 +23,7 @@ public class DatabaseConfig {
         this.url = url;
         this.username = username;
         this.password = password;
-        DatabaseInitializer.verifyDb(url, username, password);
+        DatabaseInitializer.verifyDbAndSchema(url, username, password);
     }
 
 }

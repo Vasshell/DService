@@ -1,27 +1,40 @@
 package ru.vasshell.dservice.util;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.sql.*;
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class DatabaseInitializer {
-    public static void verifyDb(String url, String username, String password) {
-        Pattern pattern = Pattern.compile("^([^/]*/+[^/]+/)([^?]+)");
-        Matcher matcher = pattern.matcher(url);
-
-        if (matcher.find()) {
-            String cleanUrl = matcher.group(1);
-            String dbName = matcher.group(2);
-            try (Connection connection = DriverManager.getConnection(cleanUrl, username, password);
-                 ResultSet catalogs = connection.getMetaData().getCatalogs();
-                 Statement statement = connection.createStatement()){
-                if (!dbInCatalogs(catalogs, dbName)) statement.executeUpdate("CREATE DATABASE %s".formatted(dbName));
-                statement.executeUpdate("CREATE SCHEMA IF NOT EXISTS service");
-            }catch (SQLException e){
+    public static void verifyDbAndSchema(String url, String username, String password) {
+        ParsedUrl parsedUrl = parseUrl(url);
+        try (Connection connection = DriverManager.getConnection(parsedUrl.baseUrl(), username, password)) {
+            verifyDb(parsedUrl.dbName(), connection);
+            verifySchema(parsedUrl.schemaName(), connection);
+            } catch (SQLException e){
                 throw new RuntimeException(e);
             }
-        } else throw new IllegalArgumentException("Incorrect database URL");
+    }
+
+    private static void verifySchema(String schemaName, Connection connection) {
+        try (Statement statement = connection.createStatement()){
+            if (schemaName!=null) {
+                statement.executeUpdate("CREATE SCHEMA IF NOT EXISTS %s".formatted(schemaName));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static void verifyDb(String dbName, Connection connection){
+        try(ResultSet catalogs = connection.getMetaData().getCatalogs();
+            Statement statement = connection.createStatement()) {
+            if (dbName!= null && !dbInCatalogs(catalogs, dbName)) {
+                statement.executeUpdate("CREATE DATABASE %s".formatted(dbName));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static boolean dbInCatalogs(ResultSet catalogs, String dbName) throws SQLException {
@@ -30,4 +43,30 @@ public class DatabaseInitializer {
         }
         return false;
     }
+
+    private record ParsedUrl(String baseUrl, String dbName, String schemaName) { }
+    private static ParsedUrl parseUrl(String url){
+        URI uri;
+        try {
+            uri = new URI(url.substring(5));
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+        String baseUrl = "jdbc:" + uri.getScheme() + "://" + uri.getAuthority() + "/";
+        String path = uri.getPath();
+        String dbName = (path != null && path.length() > 1) ? path.substring(1) : null;
+        String schemaName = null;
+        String query = uri.getQuery();
+        if (query != null) {
+            for (String param : query.split("&")) {
+                String[] pair = param.split("=", 2);
+                if (pair.length == 2 && pair[0].equals("currentSchema")) {
+                    schemaName = pair[1];
+                    break;
+                }
+            }
+        }
+        return new ParsedUrl(baseUrl, dbName, schemaName);
+    }
+
 }

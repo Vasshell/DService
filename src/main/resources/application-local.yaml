@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/dservice
+    url: jdbc:postgresql://localhost:5432/dservice?currentSchema=service
     username: postgres
     password: 1769
   rabbitmq:

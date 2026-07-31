@@ -11,8 +11,8 @@ import ru.vasshell.dservice.service.UserService;
 
 import java.util.UUID;
 
-@AllArgsConstructor
 @Component
+@AllArgsConstructor
 public class RabbitUserListener {
 
     private final UserService userService;
