@@ -45,7 +45,7 @@ public class UserService {
         if (userSearch.isEmpty()){
             return;
         }
-        userRepo.save(mapper.toEntity(userDto));
+        userRepo.update(mapper.toEntity(userDto));
     }
 
     @CacheEvict(value = "users", allEntries = true)

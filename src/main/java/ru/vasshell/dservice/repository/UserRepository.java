@@ -23,4 +23,6 @@ public interface UserRepository {
     void saveAll(List<User> list);
 
     void ensure();
+
+    void update(User entity);
 }

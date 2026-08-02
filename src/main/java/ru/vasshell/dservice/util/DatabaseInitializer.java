@@ -10,17 +10,17 @@ public class DatabaseInitializer {
         ParsedUrl parsedUrl = parseUrl(url);
         try (Connection connection = DriverManager.getConnection(parsedUrl.baseUrl(), username, password)) {
             verifyDb(parsedUrl.dbName(), connection);
-            verifySchema(parsedUrl.schemaName(), connection);
             } catch (SQLException e){
                 throw new RuntimeException(e);
             }
+        verifySchema(parsedUrl, username, password);
     }
 
-    private static void verifySchema(String schemaName, Connection connection) {
-        try (Statement statement = connection.createStatement()){
-            if (schemaName!=null) {
-                statement.executeUpdate("CREATE SCHEMA IF NOT EXISTS %s".formatted(schemaName));
-            }
+    private static void verifySchema(ParsedUrl url, String username, String password) {
+        String dbUrl = url.baseUrl() + (url.dbName() == null ? "" : url.dbName());
+        try (Connection connection = DriverManager.getConnection(dbUrl, username, password); 
+             Statement statement = connection.createStatement()) {
+            statement.executeUpdate("CREATE SCHEMA IF NOT EXISTS %s".formatted(url.schemaName()));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

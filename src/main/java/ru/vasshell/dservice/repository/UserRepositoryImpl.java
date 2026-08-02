@@ -147,7 +147,28 @@ public class UserRepositoryImpl  implements UserRepository {
 
     @Override
     public void save(User user) {
-        saveAll(List.of(user));
+        if (user.getId() == null) saveAll(List.of(user));
+    }
+
+    @Override
+    public void update(User user) {
+        String updateQuery = """
+                UPDATE users
+                SET first_name = ?,
+                last_name = ?,
+                age = ?
+                WHERE id = ?
+                """;
+        try (Connection connection = getConnection(); 
+             PreparedStatement statement = connection.prepareStatement(updateQuery)){
+            statement.setString(1, user.getFirstName());
+            statement.setString(2, user.getLastName());
+            statement.setInt(3, user.getAge());
+            statement.setObject(4, user.getId());
+            statement.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
