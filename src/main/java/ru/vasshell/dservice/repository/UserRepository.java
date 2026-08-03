@@ -10,19 +10,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface UserRepository {
-
-    void save(User user);
-
     Optional<User> findById(UUID id);
-
-    void deleteById(UUID id);
-
     Page<User> findAll(UserFilterDto filters, Pageable pageable);
     List<User> findAll();
-
+    void save(User user);
     void saveAll(List<User> list);
-
-    void ensure();
-
     void update(User entity);
+    void deleteById(UUID id);
+    void ensure();
 }

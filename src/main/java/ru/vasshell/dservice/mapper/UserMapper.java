@@ -13,9 +13,9 @@ public interface UserMapper {
     UserDto toDto(User user);
     User toEntity(UserDto user);
 
-    @Mapping(target = "id", expression = "java(rs.getObject(\"id\", java.util.UUID.class))")
-    @Mapping(target = "firstName", expression = "java(rs.getString(\"first_name\"))")
-    @Mapping(target = "lastName", expression = "java(rs.getString(\"last_name\"))")
     @Mapping(target = "age", expression = "java(rs.getInt(\"age\"))")
+    @Mapping(target = "lastName", expression = "java(rs.getString(\"last_name\"))")
+    @Mapping(target = "firstName", expression = "java(rs.getString(\"first_name\"))")
+    @Mapping(target = "id", expression = "java(rs.getObject(\"id\", java.util.UUID.class))")
     User toEntity(ResultSet rs) throws SQLException;
 }
