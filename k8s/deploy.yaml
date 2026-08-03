@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dservice
+  template:
+    metadata:
+      labels:
+        app: dservice
+    spec:
+      containers:
+        - name: app
+          image: dservice:1.0
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: docker
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dservice
+spec:
+  selector:
+    app: dservice
+  ports:
+    - port: 80
+      targetPort: 8080
