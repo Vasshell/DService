@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class RabbitConfig {
+public class TopicConfig {
 
     public static final String QUEUE_CREATE = "user-create";
     public static final String QUEUE_DELETE = "user-delete";

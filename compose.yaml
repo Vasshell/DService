@@ -38,9 +38,11 @@ services:
        timeout: 5s
        retries: 5
 
-  rabbitmq:
-    image: rabbitmq:latest
-    container_name: rabbitmq
+  kafka:
+    image: apache/kafka:latest
+    container_name: kafka
+    ports:
+      - "9092:9092"
 
   redis:
     image: redis:latest

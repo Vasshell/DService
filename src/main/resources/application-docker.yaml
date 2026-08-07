@@ -3,9 +3,11 @@ spring:
     url: jdbc:postgresql://db:5432/dservice?currentSchema=service
     username: postgres
     password: 1769
-  rabbitmq:
-    host: rabbitmq
-    port: 5672
+  kafka:
+    bootstrap-servers:
+      - kafka:9092
+    consumer:
+      group-id: dservice
   data:
     redis:
       host: redis

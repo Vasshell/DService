@@ -11,6 +11,7 @@ import ru.vasshell.dservice.entity.User;
 import ru.vasshell.dservice.mapper.UserMapper;
 import ru.vasshell.dservice.util.UserClause;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,7 @@ import java.util.UUID;
 public class UserRepositoryImpl  implements UserRepository {
 
     private final UserMapper userMapper;
-    private final DatabaseConfig config;
+    private final DataSource source;
 
     @Override
     public void ensure() {
@@ -42,7 +43,7 @@ public class UserRepositoryImpl  implements UserRepository {
     }
 
     private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(config.getUrl(), config.getUsername(), config.getPassword());
+        return source.getConnection();
     }
 
     @Override
